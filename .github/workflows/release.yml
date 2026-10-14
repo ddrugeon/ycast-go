@@ -15,6 +15,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (node24)
         with:
           fetch-depth: 0 # git describe for the version string
+          persist-credentials: false
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 (node24)
         with:
           go-version-file: go.mod
@@ -28,9 +29,11 @@ jobs:
   deb:
     name: Debian package (amd64)
     runs-on: ubuntu-latest
-    container: debian:trixie-20261005
+    container: debian:trixie-20261005@sha256:913f6706df59a68922d1dd08f78c2476560a8d367897200a6005b00e5f67c2d5 # debian:trixie-20261005
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (node24)
+        with:
+          persist-credentials: false
       - name: Install build dependencies
         run: |
           apt-get update
@@ -52,9 +55,11 @@ jobs:
   rpm:
     name: RPM package (x86_64)
     runs-on: ubuntu-latest
-    container: fedora:44
+    container: fedora:44@sha256:43b29f65a41eb9c35e1cd5323e3bdf3b655c2357a9f4f1ff2f9c2798e5045d80 # fedora:44
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (node24)
+        with:
+          persist-credentials: false
       - name: Install build dependencies
         run: dnf install -y go rpm-build git-core
       - name: Build the package
@@ -84,6 +89,8 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (node24)
+        with:
+          persist-credentials: false
       - name: Compute version
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0 (node24)
@@ -118,10 +125,11 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
-      - name: Publish
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3 (node24)
-        with:
-          files: |
-            artifacts/*.deb
-            artifacts/*.rpm
-            artifacts/ycast-go-linux-*
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" --clobber \
+            artifacts/*.deb artifacts/*.rpm artifacts/ycast-go-linux-*

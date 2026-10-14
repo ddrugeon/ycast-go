@@ -2,7 +2,7 @@
 # (denon.vtuner.com & co) at this host, then edit ./stations.yml.
 services:
   ycast-go:
-    image: ghcr.io/henri/ycast-go:latest
+    image: ghcr.io/hgomez/ycast-go:latest
     container_name: ycast-go
     restart: unless-stopped
     ports:

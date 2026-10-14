@@ -80,7 +80,7 @@ or routers. Dependencies are kept to a strict minimum (`gopkg.in/yaml.v3`,
   ```sh
   docker run -d -p 80:8080 \
     -v ./stations.yml:/etc/ycast/stations.yml:ro \
-    ghcr.io/henri/ycast-go:latest
+    ghcr.io/hgomez/ycast-go:latest
   ```
   Multi-arch image (`amd64`/`arm64`), built on `debian:trixie-slim`, runs as
   an unprivileged user on port 8080; map the receiver's port 80 to it. The

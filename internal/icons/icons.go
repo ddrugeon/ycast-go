@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/henri/ycast-go/internal/station"
+	"github.com/hgomez/ycast-go/internal/station"
 	xdraw "golang.org/x/image/draw"
 )
 

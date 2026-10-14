@@ -20,8 +20,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/henri/ycast-go/internal/station"
-	"github.com/henri/ycast-go/internal/vtuner"
+	"github.com/hgomez/ycast-go/internal/station"
+	"github.com/hgomez/ycast-go/internal/vtuner"
 )
 
 // ------------------------------------------------------------------ helpers

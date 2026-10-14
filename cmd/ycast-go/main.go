@@ -20,7 +20,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/henri/ycast-go/internal/server"
+	"github.com/hgomez/ycast-go/internal/server"
 )
 
 // version is overridden at build time with -ldflags "-X main.version=...".

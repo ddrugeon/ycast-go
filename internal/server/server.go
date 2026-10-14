@@ -16,11 +16,11 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/henri/ycast-go/internal/icons"
-	"github.com/henri/ycast-go/internal/mystations"
-	"github.com/henri/ycast-go/internal/radiobrowser"
-	"github.com/henri/ycast-go/internal/station"
-	"github.com/henri/ycast-go/internal/vtuner"
+	"github.com/hgomez/ycast-go/internal/icons"
+	"github.com/hgomez/ycast-go/internal/mystations"
+	"github.com/hgomez/ycast-go/internal/radiobrowser"
+	"github.com/hgomez/ycast-go/internal/station"
+	"github.com/hgomez/ycast-go/internal/vtuner"
 )
 
 // Config carries the server options (flags in cmd/ycast-go).

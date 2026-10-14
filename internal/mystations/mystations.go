@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/henri/ycast-go/internal/station"
+	"github.com/hgomez/ycast-go/internal/station"
 	"gopkg.in/yaml.v3"
 )
 

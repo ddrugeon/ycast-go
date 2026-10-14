@@ -4,7 +4,8 @@
 # Run:   docker run -d -p 80:8080 -v ./stations.yml:/etc/ycast/stations.yml:ro ycast-go
 
 # ---- build ----------------------------------------------------------------
-FROM debian:trixie-20261005-slim AS build
+# Digest pins the manifest list, so multi-arch builds resolve both arches.
+FROM debian:trixie-20261005-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f AS build
 ARG VERSION=dev
 RUN apt-get update \
     && apt-get install -y --no-install-recommends golang-any ca-certificates \
@@ -19,10 +20,10 @@ RUN go build -mod=vendor -trimpath \
     -o /usr/local/bin/ycast-go ./cmd/ycast-go
 
 # ---- runtime ---------------------------------------------------------------
-FROM debian:trixie-20261005-slim
+FROM debian:trixie-20261005-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f
 LABEL org.opencontainers.image.title="ycast-go" \
       org.opencontainers.image.description="Self-hosted vTuner replacement for network receivers" \
-      org.opencontainers.image.source="https://github.com/henri/ycast-go" \
+      org.opencontainers.image.source="https://github.com/hgomez/ycast-go" \
       org.opencontainers.image.licenses="GPL-3.0-or-later"
 
 COPY --from=build /usr/local/bin/ycast-go /usr/bin/ycast-go

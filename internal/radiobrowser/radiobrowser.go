@@ -22,7 +22,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/henri/ycast-go/internal/station"
+	"github.com/hgomez/ycast-go/internal/station"
 )
 
 const (

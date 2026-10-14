@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/henri/ycast-go/internal/station"
+	"github.com/hgomez/ycast-go/internal/station"
 )
 
 func discardLogger() *slog.Logger {
