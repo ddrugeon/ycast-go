@@ -1,0 +1,32 @@
+# Dependabot: dependency and workflow updates.
+# Vendor caveat: the Go dependencies are vendored (vendor/ is committed, see
+# docs/DECISIONS.md #11). Dependabot updates go.mod/go.sum AND the vendor/
+# tree together; if a PR ever lands with a stale vendor/, run `go mod vendor`
+# and push before merging.
+version: 2
+updates:
+  # Go dependencies (yaml.v3, x/image) — grouped in a single PR to keep noise
+  # low; the test suite gates the merge anyway.
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      go-modules:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: deps
+
+  # GitHub Actions — SHA pins are updated along with their `# vX.Y.Z`
+  # trailing comments. Grouped so the workflows move together.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: ci

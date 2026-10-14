@@ -80,6 +80,9 @@ all there is.
 - **CI hygiene** — third-party GitHub Actions are pinned to full commit SHAs
   (version tag kept as a trailing comment); base images are date-pinned (see
   `docs/DECISIONS.md`). Bumping either is a deliberate, reviewable change.
+  `.github/dependabot.yml` keeps dependencies and SHA pins fresh (weekly,
+  grouped PRs); go.mod and the `vendor/` tree move together — a PR with a
+  stale `vendor/` must be fixed with `go mod vendor` before merge.
 - Real hardware (an actual receiver, radio-browser.info in production) has
   never been used for testing: never claim in the README what has not been
   verified.
