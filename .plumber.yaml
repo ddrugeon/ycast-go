@@ -1,0 +1,26 @@
+# Plumber CI/CD security policy for ycast-go.
+#
+# Overlay on the shipped baseline (extends: plumber:default): only the
+# controls that differ from the defaults are listed. `plumber config diff`
+# shows the effective deviation, `plumber config resolve` the full config.
+extends: plumber:default
+
+github:
+  controls:
+    # This repository deliberately uses NO third-party actions: only
+    # actions/* (checkout, setup-go, upload/download-artifact). The default
+    # star-threshold/allowlist profile is therefore tightened to an explicit
+    # empty allowlist — anything outside actions/* fails the gate.
+    githubActionMustComeFromAuthorizedSources:
+      enabled: true
+      trustGithubOfficialActions: true
+      trustSameOrgActions: true
+      minimumStars: 0
+      trustedGithubActions: []
+
+    # The "workflows must include required actions" control is an
+    # organisation-level policy (a universal action list does not exist);
+    # deliberately left disabled here, see the baseline comments.
+    workflowMustIncludeRequiredActions:
+      enabled: false
+      requiredGroups: []
