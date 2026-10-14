@@ -170,9 +170,13 @@ document the project's constraints; read them before changing anything.
 - `.github/workflows/ci.yml` — on every push/PR: gofmt, `go vet`,
   `go test -race`, cross-compile smoke test (arm64 + armv7).
 - `.github/workflows/release.yml` — on tag `v*`: all cross-compiled binaries
-  (`build.sh`), the Debian package (in a `debian:trixie` container), the RPM
-  package (in a `fedora:latest` container), a multi-arch Docker image
-  (`amd64`/`arm64`) pushed to GHCR, all published on the GitHub release.
+  (`build.sh`), the Debian package (in a digest-pinned `debian:trixie-20261005`
+  container), the RPM package (in a `fedora:44` container), a multi-arch
+  Docker image (`amd64`/`arm64`, native per-arch runners) pushed to GHCR, all
+  published on the GitHub release.
+- **`RELEASING.md`** — the full release procedure: what a tag produces, the
+  verification steps, recovery procedures and the security posture of the
+  pipeline.
 
 ## Licence
 
