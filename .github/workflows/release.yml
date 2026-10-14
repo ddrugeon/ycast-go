@@ -38,7 +38,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y --no-install-recommends \
-            git dpkg-dev debhelper golang
+            git dpkg-dev debhelper build-essential golang-any
       - name: Build the package
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
@@ -61,7 +61,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install build dependencies
-        run: dnf install -y go rpm-build git-core
+        run: dnf install -y go rpm-build git-core systemd-rpm-macros
       - name: Build the package
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
@@ -105,7 +105,9 @@ jobs:
           repo=${GITHUB_REPOSITORY,,}
           tag="ghcr.io/${repo}:sha-${GITHUB_SHA:0:7}-amd64"
           docker build --build-arg VERSION="${VERSION}" -t "$tag" .
-          docker push "$tag"
+          # GHCR occasionally answers 500 mid-push: retry a few times.
+          for i in 1 2 3; do docker push "$tag" && break || sleep 15; done
+          docker push "$tag" # fail for real if all retries failed
           digest=$(docker buildx imagetools inspect "$tag" --format '{{.Manifest.Digest}}')
           echo "ghcr.io/${repo}@$digest" > digest-amd64.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
@@ -132,7 +134,9 @@ jobs:
           repo=${GITHUB_REPOSITORY,,}
           tag="ghcr.io/${repo}:sha-${GITHUB_SHA:0:7}-arm64"
           docker build --build-arg VERSION="${VERSION}" -t "$tag" .
-          docker push "$tag"
+          # GHCR occasionally answers 500 mid-push: retry a few times.
+          for i in 1 2 3; do docker push "$tag" && break || sleep 15; done
+          docker push "$tag" # fail for real if all retries failed
           digest=$(docker buildx imagetools inspect "$tag" --format '{{.Manifest.Digest}}')
           echo "ghcr.io/${repo}@$digest" > digest-arm64.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 (node24)
