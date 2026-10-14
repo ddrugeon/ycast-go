@@ -1,0 +1,127 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  binaries:
+    name: Cross-compiled binaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0 # git describe for the version string
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+      - name: Build all targets
+        run: ./build.sh "${GITHUB_REF_NAME#v}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: binaries
+          path: dist/ycast-go-linux-*
+
+  deb:
+    name: Debian package (amd64)
+    runs-on: ubuntu-latest
+    container: debian:trixie-20261005
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git dpkg-dev debhelper golang
+      - name: Build the package
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          cp -r packaging/deb/debian .
+          sed -i "1s/ycast-go (.*)/ycast-go (${VERSION})/" debian/changelog
+          dpkg-buildpackage -us -uc -b
+          mkdir -p dist
+          mv ../ycast-go_*.deb dist/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: deb
+          path: dist/*.deb
+
+  rpm:
+    name: RPM package (x86_64)
+    runs-on: ubuntu-latest
+    container: fedora:44
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install build dependencies
+        run: dnf install -y go rpm-build git-core
+      - name: Build the package
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/^Version:        .*/Version:        ${VERSION}/" packaging/rpm/ycast-go.spec
+          rpmbuild_topdir="$PWD/rpmbuild"
+          mkdir -p "$rpmbuild_topdir"/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          tar czf "$rpmbuild_topdir/SOURCES/ycast-go-${VERSION}.tar.gz" \
+              --transform "s,^,ycast-go-${VERSION}/," \
+              --exclude=.git --exclude=dist --exclude=rpmbuild .
+          cp packaging/rpm/ycast-go.spec "$rpmbuild_topdir/SPECS/"
+          rpmbuild -bb --define "_topdir $rpmbuild_topdir" \
+              "$rpmbuild_topdir/SPECS/ycast-go.spec"
+          mkdir -p dist
+          mv "$rpmbuild_topdir"/RPMS/*/*.rpm dist/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: rpm
+          path: dist/*.rpm
+
+  docker:
+    name: Docker image (GHCR)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Compute version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION=${{ env.VERSION }}
+
+  release:
+    name: Publish release
+    needs: [binaries, deb, rpm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Publish
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: |
+            artifacts/*.deb
+            artifacts/*.rpm
+            artifacts/ycast-go-linux-*

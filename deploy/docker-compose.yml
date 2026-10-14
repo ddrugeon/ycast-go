@@ -1,0 +1,15 @@
+# Example Docker Compose deployment. Point your receiver's DNS entries
+# (denon.vtuner.com & co) at this host, then edit ./stations.yml.
+services:
+  ycast-go:
+    image: ghcr.io/henri/ycast-go:latest
+    container_name: ycast-go
+    restart: unless-stopped
+    ports:
+      - "80:8080" # the receiver only talks to port 80
+    volumes:
+      - ./stations.yml:/etc/ycast/stations.yml:ro
+      - ycast-icons:/var/cache/ycast-go
+
+volumes:
+  ycast-icons:

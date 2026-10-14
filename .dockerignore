@@ -1,0 +1,10 @@
+# Build context: source only, no build artifacts.
+dist/
+rpmbuild/
+packaging/
+deploy/
+docs/
+.github/
+*.deb
+*.rpm
+stations.yml

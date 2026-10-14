@@ -1,0 +1,26 @@
+Source: ycast-go
+Section: net
+Priority: optional
+Maintainer: ycast-go maintainers <ycast-go@localhost>
+Build-Depends:
+ debhelper-compat (= 13),
+ golang-any (>= 2:1.24~),
+Standards-Version: 4.6.2
+Homepage: https://github.com/henri/ycast-go
+Rules-Requires-Root: no
+Vcs-Browser: https://github.com/henri/ycast-go
+Vcs-Git: https://github.com/henri/ycast-go.git
+
+Package: ycast-go
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: self-hosted vTuner replacement for network receivers
+ Replaces the shut-down vTuner internet radio service for network receivers
+ (Denon, Marantz, Yamaha, Onkyo...). The receiver is pointed at this server
+ through DNS and gets your own stations (stations.yml) plus the Community
+ Radio Browser catalog in its "Internet Radio" menu, with front-panel
+ controls working. HTTPS streams are relayed as plain HTTP since receivers
+ cannot do TLS.
+ .
+ The station configuration lives in /etc/ycast/stations.yml and is reloaded
+ automatically when it changes.

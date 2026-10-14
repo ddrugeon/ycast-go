@@ -1,0 +1,33 @@
+# Build artifacts
+/dist/
+/ycast-go
+cmd/ycast-go/ycast-go
+
+# Debian packaging intermediates (dpkg-buildpackage writes these at the
+# repository root and its parent when debian/ is copied in place)
+/debian/
+*.deb
+*.rpm
+*.changes
+*.buildinfo
+*.dsc
+*.tar.gz
+*.tar.xz
+
+# RPM build tree
+/rpmbuild/
+
+# Local configuration: stations.yml is per-machine (see stations.yml.example).
+# NOTE: if you keep yours versioned, remove the next line.
+/stations.yml
+
+# Test and coverage output
+*.test
+*.out
+coverage.*
+
+# Go workspace and editor files
+*.swp
+*~
+.idea/
+.vscode/

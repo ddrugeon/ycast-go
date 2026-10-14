@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+# debian/rules for ycast-go. The build is done directly with the Go
+# toolchain (no dh-golang), so the build commands stay identical to the
+# documented ones. CI is expected to copy (or symlink) this debian/ directory
+# at the top of the source tree, then run dpkg-buildpackage -us -uc -b.
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+VERSION := $(shell dpkg-parsechangelog -S Version | sed 's/-[^-]*$$//')
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	rm -f ycast-go
+
+override_dh_auto_build:
+	go build -mod=vendor -trimpath \
+	    -ldflags "-X main.version=$(VERSION) -s -w" \
+	    -o ycast-go ./cmd/ycast-go
+
+override_dh_auto_test:
+	go test -mod=vendor -count=1 ./...
+
+override_dh_auto_install:
+	install -D -m 0755 ycast-go debian/ycast-go/usr/bin/ycast-go
+	install -D -m 0644 stations.yml.example debian/ycast-go/etc/ycast/stations.yml
+
+# The unit is installed but not enabled or started: the administrator must
+# configure /etc/ycast/stations.yml and the DNS redirection first.
+override_dh_installsystemd:
+	dh_installsystemd --no-enable --no-start

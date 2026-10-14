@@ -1,0 +1,2 @@
+deploy/ycast-go.service usr/lib/systemd/system/
+README.md usr/share/doc/ycast-go/
