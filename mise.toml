@@ -1,3 +1,4 @@
 [tools]
 gh = "latest"
 golangci-lint = "2.14.0"
+prek = "0.5.5"
