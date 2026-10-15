@@ -116,7 +116,6 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(gitlab.tooling.cloudgouv-eu-west-1.numspot.internal)
         - localmodule
         - blank
         - dot
